@@ -1,12 +1,83 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from "react"
+import ReactDOM from "react-dom"
 
-ReactDOM.render(<App />, document.getElementById('root'));
+import './style.css'
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+class Square extends React.Component {
+    render() {
+        return (
+            <button 
+                className="square"
+            >
+            </button>
+        )
+    }
+}
+
+class Board extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    renderSquare(i) {
+        return (
+            <Square
+            />
+        )
+    }
+
+    renderSudokuBoard(boardArray) {
+        let table = []
+
+        // Outer loop to create rows
+        for (let i = 0; i < 9; i++) {
+            let children = []
+            // Inner loop to create columns
+            for (let j = 0; j < 9; j++) {
+                children.push(<td>{ boardArray[i][j] }</td>)
+            }
+            // Add children to parent
+            table.push(<tr>{children}</tr>)
+        }
+        return table
+    }
+
+    render() {
+        return (
+            <table>
+                { this.renderSudokuBoard(this.props.boardArray) }
+            </table>
+        )
+    }
+}
+
+class SudokuGame extends React.Component {
+    constructor(props) {
+        super(props);
+
+        var boardArray = Array(9);
+        for (let i = 0; i < boardArray.length; i++) {
+            boardArray[i] = Array(9).fill(1);
+        }
+
+        this.state = {
+            gameEnded: false,
+            boardArray: boardArray,
+        }
+    }
+
+    render() {
+        const boardArray = this.state.boardArray
+        return (
+            <div className="game">
+                <div className="game-board">
+                    <Board 
+                        boardArray = {boardArray}
+                    />
+                </div>
+            </div>
+        );
+    }
+}
+
+ReactDOM.render(<SudokuGame />, document.getElementById("root"));
