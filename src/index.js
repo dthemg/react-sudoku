@@ -4,12 +4,15 @@ import ReactDOM from "react-dom"
 import './style.css'
 
 class Square extends React.Component {
+
     render() {
         return (
-            <button 
-                className="square"
-            >
-            </button>
+            <form>
+                <input 
+                    type="text" 
+                    value="3"
+                />
+            </form>
         )
     }
 }
@@ -32,10 +35,12 @@ class Board extends React.Component {
         // Outer loop to create rows
         for (let i = 0; i < 9; i++) {
             let children = []
+
             // Inner loop to create columns
             for (let j = 0; j < 9; j++) {
-                children.push(<td>{ boardArray[i][j] }</td>)
-            }
+                children.push(<td>{ 4 }</td>)
+            }//boardArray[i][j] }</td>)
+            
             // Add children to parent
             table.push(<tr>{children}</tr>)
         }
@@ -56,13 +61,20 @@ class SudokuGame extends React.Component {
         super(props);
 
         var boardArray = Array(9);
+        var boardKeys = Array(9); // Is this necessary???
+
         for (let i = 0; i < boardArray.length; i++) {
             boardArray[i] = Array(9).fill(1);
+            boardKeys[i] = Array(9);
+            for (let j = 0; j < 9; j++) {
+                boardKeys[i][j] = 9*i + j;
+            }
         }
 
         this.state = {
             gameEnded: false,
             boardArray: boardArray,
+            boardKeys: boardKeys,
         }
     }
 
