@@ -18,9 +18,6 @@ class Square extends React.Component {
 }
 
 class Board extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     renderSquare(i) {
         return (
@@ -29,7 +26,7 @@ class Board extends React.Component {
         )
     }
 
-    renderSudokuBoard(boardArray) {
+    renderSudokuBoard(boardArray, boardKeys) {
         let table = []
 
         // Outer loop to create rows
@@ -38,11 +35,19 @@ class Board extends React.Component {
 
             // Inner loop to create columns
             for (let j = 0; j < 9; j++) {
-                children.push(<td>{ 4 }</td>)
-            }//boardArray[i][j] }</td>)
+                children.push(
+                    <td 
+                        key={boardKeys[i][j]}
+                    >
+                        { boardArray[i][j] }
+                    </td>)
+            }
             
             // Add children to parent
-            table.push(<tr>{children}</tr>)
+            table.push(
+                <tbody key={boardKeys[0][i]}>
+                    <tr >{children}</tr>
+                </tbody>)
         }
         return table
     }
@@ -50,7 +55,8 @@ class Board extends React.Component {
     render() {
         return (
             <table>
-                { this.renderSudokuBoard(this.props.boardArray) }
+                { this.renderSudokuBoard(
+                    this.props.boardArray, this.props.boardKeys) }
             </table>
         )
     }
@@ -61,7 +67,7 @@ class SudokuGame extends React.Component {
         super(props);
 
         var boardArray = Array(9);
-        var boardKeys = Array(9); // Is this necessary???
+        var boardKeys = Array(9); 
 
         for (let i = 0; i < boardArray.length; i++) {
             boardArray[i] = Array(9).fill(1);
@@ -79,12 +85,14 @@ class SudokuGame extends React.Component {
     }
 
     render() {
-        const boardArray = this.state.boardArray
+        const boardArray = this.state.boardArray;
+        const boardKeys = this.state.boardKeys;
         return (
             <div className="game">
                 <div className="game-board">
                     <Board 
                         boardArray = {boardArray}
+                        boardKeys = {boardKeys}
                     />
                 </div>
             </div>
