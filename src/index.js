@@ -3,49 +3,43 @@ import ReactDOM from "react-dom"
 
 import './style.css'
 
-class Square extends React.Component {
-
-    render() {
-        return (
-            <form>
-                <input 
-                    type="text" 
-                    value="3"
-                />
-            </form>
-        )
-    }
-}
 
 class Board extends React.Component {
-
-    renderSquare(i) {
-        return (
-            <Square
-            />
-        )
+    constructor() {
+        super();
+        this.onChange = this.onChange.bind(this);
     }
 
-    renderSudokuBoard(boardArray, boardKeys) {
+    onChange(event) {
+        this.props.onChange(event);
+    }
+
+    renderSudokuBoard() {
         let table = []
 
         // Outer loop to create rows
         for (let i = 0; i < 9; i++) {
             let children = []
 
-            // Inner loop to create columns
+            // Inner loop to create cells
             for (let j = 0; j < 9; j++) {
                 children.push(
-                    <td 
-                        key={boardKeys[i][j]}
-                    >
-                        { boardArray[i][j] }
-                    </td>)
+                    <td key={this.props.boardKeys[i][j]}>
+                        <form 
+                            key={this.props.boardKeys[i][j]}
+                        >
+                            <input 
+                                placeholder="7"
+                                type="text" 
+                                onChange={(event) => this.onChange(event) }
+                            />
+                        </form>
+                    </td>)    
             }
             
-            // Add children to parent
+            // Add row to parent
             table.push(
-                <tbody key={boardKeys[0][i]}>
+                <tbody key={this.props.boardKeys[0][i]}>
                     <tr >{children}</tr>
                 </tbody>)
         }
@@ -55,8 +49,7 @@ class Board extends React.Component {
     render() {
         return (
             <table>
-                { this.renderSudokuBoard(
-                    this.props.boardArray, this.props.boardKeys) }
+                { this.renderSudokuBoard() }
             </table>
         )
     }
@@ -84,6 +77,10 @@ class SudokuGame extends React.Component {
         }
     }
 
+    onChange(event) {
+        console.log(event)
+    }
+
     render() {
         const boardArray = this.state.boardArray;
         const boardKeys = this.state.boardKeys;
@@ -91,8 +88,9 @@ class SudokuGame extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board 
-                        boardArray = {boardArray}
-                        boardKeys = {boardKeys}
+                        boardArray = { boardArray }
+                        boardKeys = { boardKeys }
+                        onChange = { this.onChange }
                     />
                 </div>
             </div>

@@ -12,6 +12,8 @@ td {
 td:nth-child(3n) {
     border-right: solid;
 }
-tr:nth-child(3n) td {
-    border-bottom: solid;
+
+.inputNumber {
+    width: 34px;
+    height: 34px;
 }
