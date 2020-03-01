@@ -5,10 +5,6 @@ import './style.css'
 
 
 class Board extends React.Component {
-    constructor() {
-        super();
-        this.onChange = this.onChange.bind(this);
-    }
 
     onChange(event) {
         this.props.onChange(event);
@@ -29,7 +25,8 @@ class Board extends React.Component {
                             key={this.props.boardKeys[i][j]}
                         >
                             <input 
-                                placeholder="7"
+                                key={this.props.boardKeys[i][j]}
+                                data-key={this.props.boardKeys[i][j]}
                                 type="text" 
                                 onChange={(event) => this.onChange(event) }
                             />
@@ -58,6 +55,7 @@ class Board extends React.Component {
 class SudokuGame extends React.Component {
     constructor(props) {
         super(props);
+        this.onChange = this.onChange.bind(this);
 
         var boardArray = Array(9);
         var boardKeys = Array(9); 
@@ -77,8 +75,18 @@ class SudokuGame extends React.Component {
         }
     }
 
+    // Store new value
     onChange(event) {
-        console.log(event)
+        let key = event.target.dataset.key;
+        
+        const arr = this.state.boardArray;
+        let row = (key - key % 9) / 9;
+        let col = key % 9;
+
+        arr[row][col] = parseInt(event.target.value);
+        this.setState({
+            boardArray: arr,
+        })
     }
 
     render() {
