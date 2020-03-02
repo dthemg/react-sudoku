@@ -135,15 +135,52 @@ class SudokuGame extends React.Component {
         let col = key % 9;
 
         let newVal = parseInt(event.target.value);
-        if (Number.isNaN(newVal)) {
+        if (Number.isNaN(newVal) || newVal === 0) {
             console.error("Cannot add value: ", event.target.value);
             
         } else {
             arr[row][col] = parseInt(newVal);
-            this.setState({
-                boardArray: arr,
-            })
+
+            if (this.boardIsLegal(arr)) {
+                this.setState({
+                    boardArray: arr,
+                })
+            }
         }
+    }
+
+    boardIsLegal() {
+        let legal = true;
+        const board = this.state.boardArray;
+
+        // Check rows
+        for (let rowIdx in board) {
+            let row = board[rowIdx].filter(function (value) {
+                return !Number.isNaN(value);
+            })
+            let unique = [...new Set(row)];
+            
+            if (row.length !== unique.length) {
+                legal = false;
+            }
+        }
+
+        // Check cols
+        for (let colIdx=0; colIdx<9; colIdx++) {
+            let col = [];
+            for (let rowIdx in board) {
+                col.push(board[rowIdx][colIdx])
+            }
+            col = col.filter(function (value) {
+                return !Number.isNaN(value);
+            })
+            let unique = [...new Set(col)];
+            if (col.length !== unique.length) {
+                legal = false;
+            }
+        }
+
+        return legal;
     }
 
     render() {
