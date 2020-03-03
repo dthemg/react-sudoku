@@ -36,6 +36,9 @@ class Board extends React.Component {
     }
 
     starterSquare(val, key) {
+        if (Number.isNaN(val)) {
+            val = "";
+        }
         let input = (
             <input 
                 key={key}
@@ -57,7 +60,7 @@ class Board extends React.Component {
             // Inner loop to create cells
             for (let j = 0; j < 9; j++) {
                 let key = this.props.boardKeys[i][j];
-                if (this.props.boardDisabled[i][j]) {
+                if (this.props.boardDisabled[i][j] | this.props.solvingSudoku) {
                     children.push(this.starterSquare(this.props.boardArray[i][j], key))
                 } else {
                     children.push(this.editableSquare(key))    
@@ -93,6 +96,8 @@ class SudokuGame extends React.Component {
     constructor(props) {
         super(props);
         this.onChange = this.onChange.bind(this);
+        this.solveSudoku = this.solveSudoku.bind(this);
+        this.gameEnded = this.gameEnded.bind(this);
 
         var boardArray = Array(9);
         var boardKeys = Array(9); 
@@ -123,6 +128,7 @@ class SudokuGame extends React.Component {
             boardArray: boardArray,
             boardKeys: boardKeys,
             boardDisabled: boardDisabled,
+            solvingSudoku: false,
         }
     }
 
@@ -145,6 +151,8 @@ class SudokuGame extends React.Component {
                 this.setState({
                     boardArray: arr,
                 })
+            } else {
+                console.error("Not allowed value");
             }
         }
     }
@@ -166,7 +174,7 @@ class SudokuGame extends React.Component {
         }
 
         // Check cols
-        for (let colIdx=0; colIdx<9; colIdx++) {
+        for (let colIdx = 0; colIdx < 9; colIdx++) {
             let col = [];
             for (let rowIdx in board) {
                 col.push(board[rowIdx][colIdx])
@@ -180,7 +188,115 @@ class SudokuGame extends React.Component {
             }
         }
 
+        // Check boxes
+        let val;
+        let iStart;
+        let jStart;
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                val = board[i][j];
+                iStart = i - (i % 3);
+                jStart = j - (j % 3);
+                for (let k = iStart; k < iStart + 3; k++) {
+                    for (let l = jStart; l < jStart + 3; l++) {
+                        if (!(k === i && l === j) && val === board[k][l]) {
+                            legal = false;
+                        }
+                    }
+                }
+            }
+        }
         return legal;
+    }
+
+    prepareSolve() {
+        // Remove all filled in inputs 
+        const boardArray = this.state.boardArray;
+        const boardDisabled = this.state.boardDisabled;
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (!boardDisabled[i][j]) {
+                    boardArray[i][j] = NaN;
+                }
+            }
+        }
+        this.setState({
+            boardArray: boardArray,
+            solvingSudoku: true,
+        })
+    }
+
+    solveSudoku() {
+        this.prepareSolve();
+        let boardArray = this.state.boardArray;
+        const boardDisabled = this.state.boardDisabled;
+
+        let rowIdx = 0;
+        let colIdx = 0;
+        let it = 0;
+        let squareVal;
+        let val;
+        while (it < 100) {
+            // Find first available square
+            if (boardDisabled[rowIdx][colIdx]) {
+                [rowIdx, colIdx] = this.nextRowCol(rowIdx, colIdx);
+                continue;
+            }
+            val = 1;
+            while (val < 9) {
+                boardArray[rowIdx][colIdx] = val;
+                boardArray = this.updateBoard(boardArray);
+                if (this.boardIsLegal()) {
+                    [rowIdx, colIdx] = this.nextRowCol(rowIdx, colIdx);
+                    continue;
+                } else {
+                    val++;
+                }
+            }
+            
+
+         
+
+            
+
+            //boardArray[rowIdx][colIdx] = 3;
+            //boardArray = this.updateBoard(boardArray);
+            
+            it++;
+        }
+    }
+
+    nextRowCol(rowIdx, colIdx) {
+        if (colIdx + 1 < 8) {
+            colIdx++;
+        } else {
+            rowIdx++;
+            colIdx = 0;
+        }
+        return [rowIdx, colIdx];
+    }
+
+    updateBoard(boardArr) {
+        this.setState({
+            boardArray: boardArr
+        })
+        return this.state.boardArray;
+    }
+
+    gameEnded() {
+        let ended = true;
+        const boardArray = this.state.boardArray;
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (Number.isNaN(boardArray[i][j])) {
+                    ended = false;
+                }
+            }
+        }
+        if (ended) {
+            ended = this.boardIsLegal();
+        }
+        return ended;
     }
 
     render() {
@@ -189,19 +305,33 @@ class SudokuGame extends React.Component {
         const boardDisabled = this.state.boardDisabled;
 
         return (
-            <div className="game">
+            <div className="game-contents">
                 <div className="game-board">
                     <Board 
                         boardArray = { boardArray }
                         boardKeys = { boardKeys }
                         onChange = { this.onChange }
-                        boardDisabled = { boardDisabled } 
+                        boardDisabled = { boardDisabled }
+                        solvingSudoku = { this.state.solvingSudoku }
                     />
+                </div>
+                <div>
+                    <button 
+                        className="sudoku-solve-button"
+                        onClick={this.solveSudoku}
+                    >
+                        Solve Sudoku!
+                    </button>
                 </div>
             </div>
         );
     }
 }
+
+ReactDOM.render(
+    <SudokuGame />, 
+    document.getElementById("root")
+);
 
 function populateBoard(boardArr) {
     boardArr[0][0] = 1;
@@ -243,4 +373,3 @@ function populateBoard(boardArr) {
     return boardArr;
 }
 
-ReactDOM.render(<SudokuGame />, document.getElementById("root"));
