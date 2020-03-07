@@ -241,8 +241,6 @@ class SudokuGame extends React.Component {
         let fin = res[1];
         
         while (it < 1000) {
-            console.log(it);
-            console.log(fin);
             if (Number.isNaN(this.state.boardArray[pos[0]][pos[1]])) {
                 val = 1;
             } else {
@@ -256,7 +254,6 @@ class SudokuGame extends React.Component {
                     res = this.nextTile(pos);
                     pos = res[0];
                     fin = res[1];
-                    console.log(pos, fin);
                     break;
                 } else {
                     val++;
@@ -264,7 +261,7 @@ class SudokuGame extends React.Component {
             }
             if (fin) {
                 // Solver has finished
-                console.log("Finished in " + it + " iterations");
+                console.log("Solution found: finished in " + it + " iterations");
                 break;
             }
 
@@ -273,7 +270,6 @@ class SudokuGame extends React.Component {
                 boardArray[pos[0]][pos[1]] = NaN;
                 boardArray = this.updateBoard(boardArray);
                 pos = this.prevTile(pos);
-                console.log("Retracted to", pos);
             }
             it++;
         }
