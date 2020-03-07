@@ -89,7 +89,8 @@ Board.propTypes = {
     boardArray: PropTypes.array,
     boardKeys: PropTypes.array,
     boardDisabled: PropTypes.array,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    solvingSudoku: PropTypes.bool
 }
 
 class SudokuGame extends React.Component {
@@ -98,6 +99,8 @@ class SudokuGame extends React.Component {
         this.onChange = this.onChange.bind(this);
         this.solveSudoku = this.solveSudoku.bind(this);
         this.gameEnded = this.gameEnded.bind(this);
+        this.nextTile = this.nextTile.bind(this);
+
 
         var boardArray = Array(9);
         var boardKeys = Array(9); 
@@ -229,57 +232,99 @@ class SudokuGame extends React.Component {
     solveSudoku() {
         this.prepareSolve();
         let boardArray = this.state.boardArray;
-        const boardDisabled = this.state.boardDisabled;
 
-        let rowIdx = 0;
-        let colIdx = 0;
         let it = 0;
-        let squareVal;
         let val;
-        while (it < 100) {
-            // Find first available square
-            if (boardDisabled[rowIdx][colIdx]) {
-                [rowIdx, colIdx] = this.nextRowCol(rowIdx, colIdx);
-                continue;
+        
+        // Find first available square
+        let res = this.nextTile([0,0]);
+        let pos = res[0];
+        let fin = res[1];
+        
+        while (it < 1000) {
+            if (Number.isNaN(this.state.boardArray[pos[0]][pos[1]])) {
+                val = 1;
+            } else {
+                val = this.state.boardArray[pos[0]][pos[1]] + 1;
             }
-            val = 1;
-            while (val < 9) {
-                boardArray[rowIdx][colIdx] = val;
+
+            while (val < 10) {
+                boardArray[pos[0]][pos[1]] = val;
                 boardArray = this.updateBoard(boardArray);
                 if (this.boardIsLegal()) {
-                    [rowIdx, colIdx] = this.nextRowCol(rowIdx, colIdx);
-                    continue;
+                    res = this.nextTile(pos);
+                    pos = res[0];
+                    fin = res[1];
+                    break;
                 } else {
                     val++;
                 }
             }
-            
+            if (fin) {
+                // Solver has finished
+                console.log("Finished in " + it + " iterations");
+                break;
+            }
 
-         
-
-            
-
-            //boardArray[rowIdx][colIdx] = 3;
-            //boardArray = this.updateBoard(boardArray);
-            
+            if (val >= 10) {
+                // Rectract to previous valid tile
+                boardArray[pos[0]][pos[1]] = NaN;
+                boardArray = this.updateBoard(boardArray);
+                pos = this.prevTile(pos);
+                console.log("Retracted to", pos);
+            }
             it++;
         }
     }
 
-    nextRowCol(rowIdx, colIdx) {
-        if (colIdx + 1 < 8) {
-            colIdx++;
-        } else {
-            rowIdx++;
-            colIdx = 0;
+
+    prevTile(p) {
+        let found = false;
+        let it = 0
+        while (!found && it < 100) {
+            if (p[1] - 1 >= 0) {
+                p[1] = p[1] - 1;
+            } else {
+                p[0] = p[0] - 1;
+                p[1] = 8;
+            }
+
+            if (!this.state.boardDisabled[p[0]][p[1]]) {
+                found = true;
+            }
+            it++;
         }
-        return [rowIdx, colIdx];
+        return p;
+    }
+
+    nextTile(p) {
+        let found = false;
+        let it = 0;
+        while (!found && it < 100) {
+            if (p[1] + 1 < 9) {
+                p[1] = p[1] + 1;
+            } else {
+                p[0] = p[0] + 1;
+                p[1] = 0;
+            }
+            if (p[0] > 8) {
+                return [p, true]
+            }
+            if (!this.state.boardDisabled[p[0]][p[1]]) {
+                found = true
+            }
+            it++;
+        }
+        
+        return [p, false];
+        
     }
 
     updateBoard(boardArr) {
         this.setState({
             boardArray: boardArr
         })
+
         return this.state.boardArray;
     }
 
