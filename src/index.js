@@ -101,7 +101,6 @@ class SudokuGame extends React.Component {
         this.gameEnded = this.gameEnded.bind(this);
         this.nextTile = this.nextTile.bind(this);
 
-
         var boardArray = Array(9);
         var boardKeys = Array(9); 
         var boardDisabled = Array(9);
@@ -242,6 +241,8 @@ class SudokuGame extends React.Component {
         let fin = res[1];
         
         while (it < 1000) {
+            console.log(it);
+            console.log(fin);
             if (Number.isNaN(this.state.boardArray[pos[0]][pos[1]])) {
                 val = 1;
             } else {
@@ -255,6 +256,7 @@ class SudokuGame extends React.Component {
                     res = this.nextTile(pos);
                     pos = res[0];
                     fin = res[1];
+                    console.log(pos, fin);
                     break;
                 } else {
                     val++;
@@ -279,45 +281,37 @@ class SudokuGame extends React.Component {
 
 
     prevTile(p) {
-        let found = false;
-        let it = 0
-        while (!found && it < 100) {
-            if (p[1] - 1 >= 0) {
-                p[1] = p[1] - 1;
-            } else {
-                p[0] = p[0] - 1;
-                p[1] = 8;
-            }
-
-            if (!this.state.boardDisabled[p[0]][p[1]]) {
-                found = true;
-            }
-            it++;
+       if (p[1] - 1 >= 0) {
+            p[1] = p[1] - 1;
+        } else {
+            p[0] = p[0] - 1;
+            p[1] = 8;
         }
+
+        if (this.state.boardDisabled[p[0]][p[1]]) {
+            this.prevTile(p);
+        }
+        
         return p;
     }
 
     nextTile(p) {
-        let found = false;
-        let it = 0;
-        while (!found && it < 100) {
-            if (p[1] + 1 < 9) {
-                p[1] = p[1] + 1;
-            } else {
-                p[0] = p[0] + 1;
-                p[1] = 0;
-            }
-            if (p[0] > 8) {
-                return [p, true]
-            }
-            if (!this.state.boardDisabled[p[0]][p[1]]) {
-                found = true
-            }
-            it++;
+        if (p[1] + 1 < 9) {
+            p[1] = p[1] + 1;
+        } else {
+            p[0] = p[0] + 1;
+            p[1] = 0;
         }
-        
-        return [p, false];
-        
+        if (p[0] > 8) {
+            return [p, true];
+        } else if (this.state.boardDisabled[p[0]][p[1]]) {
+            this.nextTile(p);
+        }  
+        if (p[0] > 8) {
+            return [p, true];
+        } else {
+            return [p, false];
+        }
     }
 
     updateBoard(boardArr) {
@@ -365,7 +359,7 @@ class SudokuGame extends React.Component {
                         className="sudoku-solve-button"
                         onClick={this.solveSudoku}
                     >
-                        Solve Sudoku!
+                        Solve
                     </button>
                 </div>
             </div>

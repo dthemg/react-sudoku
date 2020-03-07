@@ -8,8 +8,23 @@ td {
     border: 1px solid;
 }
 
+td:first-child {
+    border-left: solid;
+}
+
 td:nth-child(3n) {
     border-right: solid;
+}
+
+
+tbody:first-child {
+    border-top: solid;
+    border-collapse: separate;
+}
+
+tbody:nth-child(3n) {
+    border-bottom: solid;
+    border-collapse: separate;
 }
 
 input {
@@ -18,6 +33,10 @@ input {
     border: 0;
     text-align: center;
     font-size: 24px;
+}
+
+table {
+    border-collapse: collapse;
 }
 
 .game-contents {
